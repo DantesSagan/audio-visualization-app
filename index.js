@@ -89,7 +89,7 @@ audio.addEventListener('loadeddata', () => {
     audio.src = URL.createObjectURL(files[0]);
     console.log(files);
     //   load method update the source in audio
-
+    audio.play()
     function animate() {
       x = 0;
       c.clearRect(0, 0, canvas.width, canvas.height);
