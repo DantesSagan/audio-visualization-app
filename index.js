@@ -47,25 +47,25 @@ audio.src =
 //   load method update the source in audio
 // audio.load();
 // audio.play()
-// audio.addEventListener('loadeddata', () => {
+audio.addEventListener('loadeddata', () => {
+  audioSrc = audioCtx.createMediaElementSource(audio);
+  analyser = audioCtx.createAnalyser();
+  audioSrc.connect(analyser);
+  analyser.connect(audioCtx.destination);
+  analyser.fftSize = 512;
+  //   bufferLength always return half of fftSize and for now it will be 32 to each frequency
+  const bufferLength = analyser.frequencyBinCount;
+  // console.log(bufferLength);
+  const dataArray = new Uint8Array(bufferLength);
 
-audioSrc = audioCtx.createMediaElementSource(audio);
-analyser = audioCtx.createAnalyser();
-audioSrc.connect(analyser);
-analyser.connect(audioCtx.destination);
-analyser.fftSize = 512;
-//   bufferLength always return half of fftSize and for now it will be 32 to each frequency
-const bufferLength = analyser.frequencyBinCount;
-// console.log(bufferLength);
-const dataArray = new Uint8Array(bufferLength);
-
-// console.log(dataArray);
-const barWidth = canvas.width / 2 / bufferLength;
-const barWidthReverse = canvas.width / 2 / bufferLength;
-let barHeight;
-let x;
-audioCtx.resume().then(() => {
-  console.log('Playback resumed successfully');
+  // console.log(dataArray);
+  const barWidth = canvas.width / 2 / bufferLength;
+  const barWidthReverse = canvas.width / 2 / bufferLength;
+  let barHeight;
+  let x;
+  audioCtx.resume().then(() => {
+    console.log('Playback resumed successfully');
+  });
   function animate() {
     x = 0;
     //   c.globalAlpha = 0.95;
@@ -81,252 +81,272 @@ audioCtx.resume().then(() => {
   }
   c.globalAlpha = 1;
   animate();
-});
+  // });
 
-// });
+  file.addEventListener('change', () => {
+    const files = file.files;
+    audio.src = URL.createObjectURL(files[0]);
+    console.log(files);
+    //   load method update the source in audio
+    audio.play();
+    function animate() {
+      x = 0;
+      c.clearRect(0, 0, canvas.width, canvas.height);
+      // copy current frequency data into that  array
+      analyser.getByteFrequencyData(dataArray);
+      drawVisualiser(bufferLength, x, barWidth, barHeight, dataArray);
+      drawVisualiserTwo(bufferLength, x, barWidth, barHeight, dataArray);
+      drawVisualiserThree(
+        bufferLength,
+        x,
+        barWidthReverse,
+        barHeight,
+        dataArray
+      );
+      drawVisualiserFour(bufferLength, x, barWidth, barHeight, dataArray);
+      drawVisualiserFifth(bufferLength, x, barWidth, barHeight, dataArray);
+      requestAnimationFrame(animate);
+    }
+    animate();
+  });
 
-file.addEventListener('change', () => {
-  const files = file.files;
-  audio.src = URL.createObjectURL(files[0]);
-  console.log(files);
-  //   load method update the source in audio
-  audio.play();
-  function animate() {
-    x = 0;
-    c.clearRect(0, 0, canvas.width, canvas.height);
-    // copy current frequency data into that  array
-    analyser.getByteFrequencyData(dataArray);
-    drawVisualiser(bufferLength, x, barWidth, barHeight, dataArray);
-    drawVisualiserTwo(bufferLength, x, barWidth, barHeight, dataArray);
-    drawVisualiserThree(bufferLength, x, barWidthReverse, barHeight, dataArray);
-    drawVisualiserFour(bufferLength, x, barWidth, barHeight, dataArray);
-    drawVisualiserFifth(bufferLength, x, barWidth, barHeight, dataArray);
-    requestAnimationFrame(animate);
-  }
-  animate();
-});
-
-function drawVisualiser(bufferLength, x, barWidth, barHeight, dataArray) {
-  c.font = 'bold 35px serif';
-  c.fillText('Circular hue w/ hole', canvas.width / 2 - 150, 100);
-  // c.fillText('Circular hue color', canvas.width / 2 - 150, 100);
-  c.fill();
-  for (let i = 0; i < bufferLength; i++) {
-    barHeight = dataArray[i] * 1.8;
-    c.save();
-    c.translate(canvas.width / 2, canvas.height / 2);
-    // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
-    // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
-    c.rotate((i * (Math.PI * 8)) / bufferLength);
-    // c.translate(canvas.width - 150, canvas.height - 250);
-    // // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
-    // // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
-    // c.rotate(i * bufferLength * 4);
-    // c.rotate((i * (Math.PI * 4)) / bufferLength);
-    // if   const y = barHeight / 2; it will be flying frequency
-    // console.log(dataArray[i]);
-    const hue = 250 + i * 2 * colorValue;
-    const rgb = `hsl(${hue}, 100%, 50%)`;
-    c.fillStyle = rgb;
-    c.beginPath();
-    c.arc(0, barHeight, barHeight / 20, 0, Math.PI * 2);
-
-    c.arc(0, barHeight / 2.5, barHeight / 30, 0, Math.PI * 2);
-
-    c.arc(0, barHeight / 3, barHeight / 40, 0, Math.PI * 2);
-
-    c.arc(0, barHeight / 4, barHeight / 50, 0, Math.PI * 2);
+  function drawVisualiser(bufferLength, x, barWidth, barHeight, dataArray) {
+    c.font = 'bold 35px serif';
+    c.fillText('Circular hue w/ hole', canvas.width / 2 - 150, 100);
+    // c.fillText('Circular hue color', canvas.width / 2 - 150, 100);
     c.fill();
-    // c.fillStyle = rgb;
-    // c.fillRect(-50, -50, barWidth, barHeight);
-    // c.globalAlpha =Math.random() * dataArray[i] / 200;
-    x += barWidth;
-    c.restore();
-  }
-  // centerHeart.addEventListener('change', ()=>{
+    for (let i = 0; i < bufferLength; i++) {
+      barHeight = dataArray[i] * 1.8;
+      c.save();
+      c.translate(canvas.width / 2, canvas.height / 2);
+      // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
+      // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
+      c.rotate((i * (Math.PI * 8)) / bufferLength);
+      // c.translate(canvas.width - 150, canvas.height - 250);
+      // // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
+      // // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
+      // c.rotate(i * bufferLength * 4);
+      // c.rotate((i * (Math.PI * 4)) / bufferLength);
+      // if   const y = barHeight / 2; it will be flying frequency
+      // console.log(dataArray[i]);
+      const hue = 250 + i * 2 * colorValue;
+      const rgb = `hsl(${hue}, 100%, 50%)`;
+      c.fillStyle = rgb;
+      c.beginPath();
+      c.arc(0, barHeight, barHeight / 20, 0, Math.PI * 2);
 
-  if (booleanHeart === true) {
-    let size = dataArray[15] * 1.5 > 100 ? dataArray[15] : dataArray[100];
-    c.drawImage(
-      image,
-      canvas.width / 2 - size / 2,
-      canvas.height / 2 - size / 2,
-      size,
-      size
+      c.arc(0, barHeight / 2.5, barHeight / 30, 0, Math.PI * 2);
+
+      c.arc(0, barHeight / 3, barHeight / 40, 0, Math.PI * 2);
+
+      c.arc(0, barHeight / 4, barHeight / 50, 0, Math.PI * 2);
+      c.fill();
+      // c.fillStyle = rgb;
+      // c.fillRect(-50, -50, barWidth, barHeight);
+      // c.globalAlpha =Math.random() * dataArray[i] / 200;
+      x += barWidth;
+      c.restore();
+    }
+    // centerHeart.addEventListener('change', ()=>{
+
+    if (booleanHeart === true) {
+      let size = dataArray[15] * 1.5 > 100 ? dataArray[15] : dataArray[100];
+      c.drawImage(
+        image,
+        canvas.width / 2 - size / 2,
+        canvas.height / 2 - size / 2,
+        size,
+        size
+      );
+    } else {
+      return null;
+    }
+    // })
+  }
+  function drawVisualiserTwo(bufferLength, x, barWidth, barHeight, dataArray) {
+    const barWidth2 = barWidth / 4;
+    // const barHeight2 = barHeight / 2
+    // just two bars from left side
+    c.font = 'bold 35px serif';
+    c.fillText('Mirrored linear by x', canvas.width / 7 - 160, 100);
+    c.fill();
+    for (let i = 0; i < bufferLength; i++) {
+      barHeight = dataArray[i] / 2;
+      // if   const y = barHeight / 2; it will be flying frequency
+      // console.log(dataArray[i]);
+      const y = canvas.height / 4 - barHeight;
+      const red = ((i * barHeight) / 30) * colorValue;
+      const green = i * 2 * colorValue;
+      const blue = (barHeight / Math.random() / 1.5) * colorValue;
+      const rgb = 'rgb(' + red + ',' + green + ',' + blue + ')';
+      const xAxis = canvas.width / 4 / 2 - x;
+      c.fillStyle = rgb;
+      c.fillRect(xAxis, y, barWidth2, barHeight);
+      x += barWidth2;
+    }
+    for (let i = 0; i < bufferLength; i++) {
+      barHeight = dataArray[i] / 2;
+      // if   const y = barHeight / 2; it will be flying frequency
+      // console.log(dataArray[i]);
+      const y = canvas.height / 4 - barHeight;
+      const red = ((i * barHeight) / 30) * colorValue;
+      const green = i * 2 * colorValue;
+      const blue = (barHeight / Math.random() / 1.5) * colorValue;
+      const rgb = 'rgb(' + red + ',' + green + ',' + blue + ')';
+
+      c.fillStyle = rgb;
+      c.fillRect(x, y, barWidth2, barHeight);
+      x += barWidth2;
+    }
+  }
+  function drawVisualiserThree(
+    bufferLength,
+    x,
+    barWidth,
+    barHeight,
+    dataArray
+  ) {
+    c.font = 'bold 35px serif';
+    c.fillText('Mirrored linear by x and y', canvas.width / 7 - 160, 550);
+    c.fill();
+    const barWidth2 = (barWidth / 4) * -1;
+    // const barHeight2 = barHeight / 2
+    // just two bars from left side
+    for (let i = 0; i < bufferLength; i++) {
+      barHeight = dataArray[i] / 2;
+      c.save();
+      c.translate(canvas.width / 4, canvas.height / 2);
+      // if   const y = barHeight / 2; it will be flying frequency
+      // console.log(dataArray[i]);
+      const y = canvas.height / 4 - barHeight;
+      const red = ((i * barHeight) / 30) * colorValue;
+      const green = i * 2 * colorValue;
+      const blue = (barHeight / Math.random() / 1.5) * colorValue;
+      const rgb = 'rgb(' + red + ',' + green + ',' + blue + ')';
+      const xAxis = ((canvas.width / 4) * -1) / 2 - x;
+      c.fillStyle = 'white';
+      c.fillRect(xAxis, y - 25, barWidth2, 5);
+      c.fillStyle = rgb;
+      c.fillRect(xAxis, y, barWidth2, barHeight * 1.5);
+      x += barWidth2;
+      c.restore();
+    }
+    for (let i = 0; i < bufferLength; i++) {
+      barHeight = dataArray[i] / 2;
+      c.save();
+      c.translate(canvas.width / 4, canvas.height / 2);
+      // if   const y = barHeight / 2; it will be flying frequency
+      // console.log(dataArray[i]);
+      const y = canvas.height / 4 - barHeight;
+      const red = ((i * barHeight) / 30) * colorValue;
+      const green = i * 2 * colorValue;
+      const blue = (barHeight / Math.random() / 1.5) * colorValue;
+      const rgb = 'rgb(' + red + ',' + green + ',' + blue + ')';
+      c.fillStyle = 'white';
+      c.fillRect(x, y - 25, barWidth2, 5);
+      c.fillStyle = rgb;
+      c.fillRect(x, y, barWidth2, barHeight * 1.5);
+      x += barWidth2;
+      c.restore();
+    }
+
+    // for (let i = 0; i < bufferLength; i++) {
+    //   barHeight = dataArray[i] * 2;
+    //   c.save();
+    //   c.translate(canvas.width / 2, canvas.height / 2);
+    //   // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
+    //   // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
+    //   c.rotate((i * (Math.PI * 8)) / bufferLength);
+    //   // if   const y = barHeight / 2; it will be flying frequency
+    //   // console.log(dataArray[i]);
+    //   const hue = i;
+
+    //   const rgb = `hsl(${hue}, 80%, 50%)`;
+
+    //   c.fillStyle = rgb;
+    //   c.fillRect(0, 0, barWidth, barHeight);
+    //   // c.globalAlpha =Math.random() * dataArray[i] / 200;
+    //   x += barWidth;
+    //   c.restore();
+    // }
+  }
+  function drawVisualiserFour(bufferLength, x, barWidth, barHeight, dataArray) {
+    c.font = 'bold 35px serif';
+    // c.fillText('Circular hue w/ hole', canvas.width / 2 - 150, 100);
+    c.fillText(
+      'Circular hue color',
+      canvas.width / 2 + 500,
+      canvas.height - 400
     );
-  } else {
-    return null;
-  }
-  // })
-}
-function drawVisualiserTwo(bufferLength, x, barWidth, barHeight, dataArray) {
-  const barWidth2 = barWidth / 4;
-  // const barHeight2 = barHeight / 2
-  // just two bars from left side
-  c.font = 'bold 35px serif';
-  c.fillText('Mirrored linear by x', canvas.width / 7 - 160, 100);
-  c.fill();
-  for (let i = 0; i < bufferLength; i++) {
-    barHeight = dataArray[i] / 2;
-    // if   const y = barHeight / 2; it will be flying frequency
-    // console.log(dataArray[i]);
-    const y = canvas.height / 4 - barHeight;
-    const red = ((i * barHeight) / 30) * colorValue;
-    const green = i * 2 * colorValue;
-    const blue = (barHeight / Math.random() / 1.5) * colorValue;
-    const rgb = 'rgb(' + red + ',' + green + ',' + blue + ')';
-    const xAxis = canvas.width / 4 / 2 - x;
-    c.fillStyle = rgb;
-    c.fillRect(xAxis, y, barWidth2, barHeight);
-    x += barWidth2;
-  }
-  for (let i = 0; i < bufferLength; i++) {
-    barHeight = dataArray[i] / 2;
-    // if   const y = barHeight / 2; it will be flying frequency
-    // console.log(dataArray[i]);
-    const y = canvas.height / 4 - barHeight;
-    const red = ((i * barHeight) / 30) * colorValue;
-    const green = i * 2 * colorValue;
-    const blue = (barHeight / Math.random() / 1.5) * colorValue;
-    const rgb = 'rgb(' + red + ',' + green + ',' + blue + ')';
+    c.fill();
+    for (let i = 0; i < bufferLength; i++) {
+      barHeight = dataArray[i] * 0.7;
+      c.save();
+      c.translate(canvas.width - 300, canvas.height - 250);
+      // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
+      // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
+      c.rotate(i * bufferLength * 4);
+      // c.translate(canvas.width / 2, canvas.height / 2);
+      // // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
+      // // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
+      // c.rotate((i * (Math.PI * 8)) / bufferLength);
+      // if   const y = barHeight / 2; it will be flying frequency
+      // console.log(dataArray[i]);
 
-    c.fillStyle = rgb;
-    c.fillRect(x, y, barWidth2, barHeight);
-    x += barWidth2;
+      const hue = i * colorValue;
+
+      const rgb = `hsl(${hue}, 80%, 50%)`;
+      c.fillStyle = rgb;
+      c.fillRect(0, 0, barWidth, barHeight);
+      // c.globalAlpha =Math.random() * dataArray[i] / 200;
+      x += barWidth;
+      c.restore();
+    }
   }
-}
-function drawVisualiserThree(bufferLength, x, barWidth, barHeight, dataArray) {
-  c.font = 'bold 35px serif';
-  c.fillText('Mirrored linear by x and y', canvas.width / 7 - 160, 550);
-  c.fill();
-  const barWidth2 = (barWidth / 4) * -1;
-  // const barHeight2 = barHeight / 2
-  // just two bars from left side
-  for (let i = 0; i < bufferLength; i++) {
-    barHeight = dataArray[i] / 2;
-    c.save();
-    c.translate(canvas.width / 4, canvas.height / 2);
-    // if   const y = barHeight / 2; it will be flying frequency
-    // console.log(dataArray[i]);
-    const y = canvas.height / 4 - barHeight;
-    const red = ((i * barHeight) / 30) * colorValue;
-    const green = i * 2 * colorValue;
-    const blue = (barHeight / Math.random() / 1.5) * colorValue;
-    const rgb = 'rgb(' + red + ',' + green + ',' + blue + ')';
-    const xAxis = ((canvas.width / 4) * -1) / 2 - x;
-    c.fillStyle = 'white';
-    c.fillRect(xAxis, y - 25, barWidth2, 5);
-    c.fillStyle = rgb;
-    c.fillRect(xAxis, y, barWidth2, barHeight * 1.5);
-    x += barWidth2;
-    c.restore();
+  function drawVisualiserFifth(
+    bufferLength,
+    x,
+    barWidth,
+    barHeight,
+    dataArray
+  ) {
+    c.font = 'bold 35px serif';
+    c.fillText('Circular hue w/ lightness', canvas.width / 2 + 500, 100);
+    c.fill();
+    for (let i = 0; i < bufferLength; i++) {
+      barHeight = dataArray[i] * 0.8;
+      c.save();
+      c.translate(canvas.width - 300, canvas.height - 750);
+      // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
+      // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
+      c.rotate((i * (Math.PI * 4)) / bufferLength);
+      // if   const y = barHeight / 2; it will be flying frequency
+      // console.log(dataArray[i]);
+      const hue = i * 0.2 * colorValue;
+      const rgb = `hsl(${hue}, 100%, ${barHeight / 3}%)`;
+      const hue2 = 120 + i * colorValue;
+
+      const rgb2 = `hsl(${hue2}, 80%, 50%)`;
+      // c.fillStyle = 'white';
+      // c.fillRect(0, 0, barWidth, barHeight + 15);
+      c.drawImage(image, 0, barHeight / 2 + 15, barHeight / 4, barHeight / 4);
+      // c.save();
+      // c.beginPath();
+      // c.arc(0, barHeight / 2, barHeight / 2, 0, Math.PI / 6);
+      // c.fillStyle = rgb2;
+      // c.fill();
+      // c.stroke();
+      // c.restore();
+      c.fillStyle = rgb;
+      c.fillRect(0, 0, barWidth / 2, barHeight / 2);
+      // c.globalAlpha =Math.random() * dataArray[i] / 200;
+      x += barWidth;
+      c.restore();
+    }
+    // in this case i wanted to centered image by 15 index of data array
+    // and drawing it
   }
-  for (let i = 0; i < bufferLength; i++) {
-    barHeight = dataArray[i] / 2;
-    c.save();
-    c.translate(canvas.width / 4, canvas.height / 2);
-    // if   const y = barHeight / 2; it will be flying frequency
-    // console.log(dataArray[i]);
-    const y = canvas.height / 4 - barHeight;
-    const red = ((i * barHeight) / 30) * colorValue;
-    const green = i * 2 * colorValue;
-    const blue = (barHeight / Math.random() / 1.5) * colorValue;
-    const rgb = 'rgb(' + red + ',' + green + ',' + blue + ')';
-    c.fillStyle = 'white';
-    c.fillRect(x, y - 25, barWidth2, 5);
-    c.fillStyle = rgb;
-    c.fillRect(x, y, barWidth2, barHeight * 1.5);
-    x += barWidth2;
-    c.restore();
-  }
-
-  // for (let i = 0; i < bufferLength; i++) {
-  //   barHeight = dataArray[i] * 2;
-  //   c.save();
-  //   c.translate(canvas.width / 2, canvas.height / 2);
-  //   // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
-  //   // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
-  //   c.rotate((i * (Math.PI * 8)) / bufferLength);
-  //   // if   const y = barHeight / 2; it will be flying frequency
-  //   // console.log(dataArray[i]);
-  //   const hue = i;
-
-  //   const rgb = `hsl(${hue}, 80%, 50%)`;
-
-  //   c.fillStyle = rgb;
-  //   c.fillRect(0, 0, barWidth, barHeight);
-  //   // c.globalAlpha =Math.random() * dataArray[i] / 200;
-  //   x += barWidth;
-  //   c.restore();
-  // }
-}
-function drawVisualiserFour(bufferLength, x, barWidth, barHeight, dataArray) {
-  c.font = 'bold 35px serif';
-  // c.fillText('Circular hue w/ hole', canvas.width / 2 - 150, 100);
-  c.fillText('Circular hue color', canvas.width / 2 + 500, canvas.height - 400);
-  c.fill();
-  for (let i = 0; i < bufferLength; i++) {
-    barHeight = dataArray[i] * 0.7;
-    c.save();
-    c.translate(canvas.width - 300, canvas.height - 250);
-    // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
-    // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
-    c.rotate(i * bufferLength * 4);
-    // c.translate(canvas.width / 2, canvas.height / 2);
-    // // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
-    // // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
-    // c.rotate((i * (Math.PI * 8)) / bufferLength);
-    // if   const y = barHeight / 2; it will be flying frequency
-    // console.log(dataArray[i]);
-
-    const hue = i * colorValue;
-
-    const rgb = `hsl(${hue}, 80%, 50%)`;
-    c.fillStyle = rgb;
-    c.fillRect(0, 0, barWidth, barHeight);
-    // c.globalAlpha =Math.random() * dataArray[i] / 200;
-    x += barWidth;
-    c.restore();
-  }
-}
-function drawVisualiserFifth(bufferLength, x, barWidth, barHeight, dataArray) {
-  c.font = 'bold 35px serif';
-  c.fillText('Circular hue w/ lightness', canvas.width / 2 + 500, 100);
-  c.fill();
-  for (let i = 0; i < bufferLength; i++) {
-    barHeight = dataArray[i] * 0.8;
-    c.save();
-    c.translate(canvas.width - 300, canvas.height - 750);
-    // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
-    // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
-    c.rotate((i * (Math.PI * 4)) / bufferLength);
-    // if   const y = barHeight / 2; it will be flying frequency
-    // console.log(dataArray[i]);
-    const hue = i * 0.2 * colorValue;
-    const rgb = `hsl(${hue}, 100%, ${barHeight / 3}%)`;
-    const hue2 = 120 + i * colorValue;
-
-    const rgb2 = `hsl(${hue2}, 80%, 50%)`;
-    // c.fillStyle = 'white';
-    // c.fillRect(0, 0, barWidth, barHeight + 15);
-    c.drawImage(image, 0, barHeight / 2 + 15, barHeight / 4, barHeight / 4);
-    // c.save();
-    // c.beginPath();
-    // c.arc(0, barHeight / 2, barHeight / 2, 0, Math.PI / 6);
-    // c.fillStyle = rgb2;
-    // c.fill();
-    // c.stroke();
-    // c.restore();
-    c.fillStyle = rgb;
-    c.fillRect(0, 0, barWidth / 2, barHeight / 2);
-    // c.globalAlpha =Math.random() * dataArray[i] / 200;
-    x += barWidth;
-    c.restore();
-  }
-  // in this case i wanted to centered image by 15 index of data array
-  // and drawing it
-}
-// });
+});
 
 // function playSound() {
 //   const oscillator = audioCtx.createOscillator();
