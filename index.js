@@ -48,6 +48,9 @@ audio.src =
 // audio.load();
 // audio.play()
 audio.addEventListener('loadeddata', () => {
+  audioCtx.resume().then(() => {
+    console.log('Playback resumed successfully');
+  });
   audioSrc = audioCtx.createMediaElementSource(audio);
   analyser = audioCtx.createAnalyser();
   audioSrc.connect(analyser);
@@ -55,17 +58,15 @@ audio.addEventListener('loadeddata', () => {
   analyser.fftSize = 512;
   //   bufferLength always return half of fftSize and for now it will be 32 to each frequency
   const bufferLength = analyser.frequencyBinCount;
-  // console.log(bufferLength);
+  console.log(bufferLength);
   const dataArray = new Uint8Array(bufferLength);
 
-  // console.log(dataArray);
+  console.log(dataArray);
   const barWidth = canvas.width / 2 / bufferLength;
   const barWidthReverse = canvas.width / 2 / bufferLength;
   let barHeight;
   let x;
-  audioCtx.resume().then(() => {
-    console.log('Playback resumed successfully');
-  });
+  // audio.play();
   function animate() {
     x = 0;
     //   c.globalAlpha = 0.95;
