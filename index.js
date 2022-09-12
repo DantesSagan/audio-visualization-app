@@ -7,6 +7,8 @@ const file = document.querySelector('#fileUpload');
 const c = canvas.getContext('2d');
 
 const colorMul = document.querySelector('#color');
+const saturationMul = document.querySelector('#saturation');
+const lightnessMul = document.querySelector('#lightness');
 const centerHeart = document.querySelector('#centerHeart');
 
 let booleanHeart;
@@ -23,6 +25,28 @@ const changeColor = () => {
     resultColor.innerHTML = e.target.value;
   };
   colorMul.addEventListener('change', inputChange);
+};
+
+let saturationValue = saturationMul.value;
+saturationValue = 10;
+const changeSaturation = () => {
+  const resultSaturation = document.querySelector('#resultSaturation');
+  const inputChange = (e) => {
+    saturationValue = e.target.value;
+    resultSaturation.innerHTML = e.target.value;
+  };
+  saturationMul.addEventListener('change', inputChange);
+};
+
+let lightnessValue = lightnessMul.value;
+lightnessValue = 5;
+const changeLightness = () => {
+  const resultLightness = document.querySelector('#resultLightness');
+  const inputChange = (e) => {
+    lightnessValue = e.target.value;
+    resultLightness.innerHTML = e.target.value;
+  };
+  lightnessMul.addEventListener('change', inputChange);
 };
 
 canvas.height = window.innerHeight;
@@ -131,7 +155,9 @@ audio.addEventListener('loadeddata', () => {
       // if   const y = barHeight / 2; it will be flying frequency
       // console.log(dataArray[i]);
       const hue = 250 + i * 2 * colorValue;
-      const rgb = `hsl(${hue}, 100%, 50%)`;
+      const saturation = 10 * saturationValue;
+      const lightness = 10 * lightnessValue;
+      const rgb = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
       c.fillStyle = rgb;
       c.beginPath();
       c.arc(0, barHeight, barHeight / 20, 0, Math.PI * 2);
@@ -295,8 +321,9 @@ audio.addEventListener('loadeddata', () => {
       // console.log(dataArray[i]);
 
       const hue = i * colorValue;
-
-      const rgb = `hsl(${hue}, 80%, 50%)`;
+      const saturation = 10 * saturationValue;
+      const lightness = 10 * lightnessValue;
+      const rgb = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
       c.fillStyle = rgb;
       c.fillRect(0, 0, barWidth, barHeight);
       // c.globalAlpha =Math.random() * dataArray[i] / 200;
@@ -324,7 +351,9 @@ audio.addEventListener('loadeddata', () => {
       // if   const y = barHeight / 2; it will be flying frequency
       // console.log(dataArray[i]);
       const hue = i * 0.2 * colorValue;
-      const rgb = `hsl(${hue}, 100%, ${barHeight / 3}%)`;
+      const saturation = 10 * saturationValue;
+      const lightness = (barHeight / 3) * lightnessValue;
+      const rgb = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
       const hue2 = 120 + i * colorValue;
 
       const rgb2 = `hsl(${hue2}, 80%, 50%)`;
