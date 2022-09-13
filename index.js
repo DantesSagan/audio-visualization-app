@@ -102,6 +102,7 @@ audio.addEventListener('loadeddata', () => {
     drawVisualiserThree(bufferLength, x, barWidthReverse, barHeight, dataArray);
     drawVisualiserFour(bufferLength, x, barWidth, barHeight, dataArray);
     drawVisualiserFifth(bufferLength, x, barWidth, barHeight, dataArray);
+    drawVisualiserSix(bufferLength, x, barWidth, barHeight, dataArray);
     requestAnimationFrame(animate);
   }
   c.globalAlpha = 1;
@@ -130,6 +131,7 @@ audio.addEventListener('loadeddata', () => {
       );
       drawVisualiserFour(bufferLength, x, barWidth, barHeight, dataArray);
       drawVisualiserFifth(bufferLength, x, barWidth, barHeight, dataArray);
+      drawVisualiserSix(bufferLength, x, barWidth, barHeight, dataArray);
       requestAnimationFrame(animate);
     }
     animate();
@@ -301,18 +303,18 @@ audio.addEventListener('loadeddata', () => {
     c.font = 'bold 35px serif';
     // c.fillText('Circular hue w/ hole', canvas.width / 2 - 150, 100);
     c.fillText(
-      'Circular hue color',
+      'Circular hue color inner',
       canvas.width / 2 + 500,
       canvas.height - 400
     );
     c.fill();
     for (let i = 0; i < bufferLength; i++) {
-      barHeight = dataArray[i] * 0.7;
+      barHeight = dataArray[i] * 0.5;
       c.save();
       c.translate(canvas.width - 300, canvas.height - 250);
       // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
       // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
-      c.rotate(i * bufferLength * 4);
+      c.rotate(i * (Math.PI * 2) / bufferLength);
       // c.translate(canvas.width / 2, canvas.height / 2);
       // // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
       // // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
@@ -325,7 +327,7 @@ audio.addEventListener('loadeddata', () => {
       const lightness = 10 * lightnessValue;
       const rgb = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
       c.fillStyle = rgb;
-      c.fillRect(0, 0, barWidth, barHeight);
+      c.fillRect(-100, -100, barWidth, barHeight);
       // c.globalAlpha =Math.random() * dataArray[i] / 200;
       x += barWidth;
       c.restore();
@@ -375,6 +377,43 @@ audio.addEventListener('loadeddata', () => {
     }
     // in this case i wanted to centered image by 15 index of data array
     // and drawing it
+  }
+  function drawVisualiserSix(bufferLength, x, barWidth, barHeight, dataArray) {
+    c.font = 'bold 35px serif';
+    // c.fillText('Circular hue w/ hole', canvas.width / 2 - 150, 100);
+    // c.fillText(
+    //   'Circular hue color',
+    //   canvas.width / 2 + 500,
+    //   canvas.height - 400
+    // );
+    // c.fill();
+    for (let i = 0; i < bufferLength; i++) {
+      barHeight = dataArray[i] * 0.7;
+      c.save();
+      c.translate(canvas.width / 2 - 90, canvas.height / 2 - 250);
+      // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
+      // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
+      // c.rotate(i * bufferLength);
+      // c.translate(canvas.width / 2, canvas.height / 2);
+      // // if  c.rotate(i + (Math.PI * 2) / bufferLength); if will be like sun light going to earth
+      // // if c.rotate(i * (Math.PI * 2) / bufferLength); will be motion like growing by curcular motion
+      // c.rotate((i * (Math.PI * 8)) / bufferLength);
+      // if   const y = barHeight / 2; it will be flying frequency
+      // console.log(dataArray[i]);
+
+      const hue = i * colorValue;
+      const saturation = 10 * saturationValue;
+      const lightness = 10 * lightnessValue;
+      const rgb = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+      // c.fillStyle = rgb;
+      c.strokeStyle = rgb;
+      c.strokeRect(-100, -180, barWidth + 375, barHeight);
+      // c.arc(200, 20, barWidth,0, Math.PI * 3)
+      // c.fillRect(50, 0, barWidth, barHeight);
+      // c.globalAlpha =Math.random() * dataArray[i] / 200;
+      x += barWidth;
+      c.restore();
+    }
   }
 });
 
