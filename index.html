@@ -17,8 +17,11 @@
         <figure>
             <figcaption style="color:white; justify-content: center; align-items:center; display:flex;">Control
                 panel(click around):</figcaption>
+            <figcaption
+                style="justify-content: center; align-items:center; display:flex; margin-top:15px; color:white;" id="SongName">Song
+                name: Cigarettes After Sex - Night Train</figcaption>
             <div id="figureAudio" style="justify-content: center; align-items:center; display:flex; margin-top:25px;">
-                <audio id="audio1" controls  />
+                <audio id="audio1" controls />
             </div>
         </figure>
         <figure style="padding-left: 15px;">
@@ -33,7 +36,8 @@
             <figcaption style="color:white; justify-content: start; align-items:start; display:flex;">
                 Saturation changer:</figcaption>
             <div style="justify-content: start; align-items:start; display:flex;">
-                <input id="saturation" type="range" onchange="changeSaturation();" min="1" max="10" value='10' step="1" />
+                <input id="saturation" type="range" onchange="changeSaturation();" min="1" max="10" value='10'
+                    step="1" />
                 <span id="resultSaturation" style="color:white;"></span>
             </div>
         </figure>
@@ -49,8 +53,9 @@
             <figcaption style="color:white; justify-content: start; align-items:start; display:flex;">
                 Heart</figcaption>
             <div style="justify-content: start; align-items:start; display:flex;">
-                <input id="centerHeart" type="checkbox" onchange="functionHeart();" min="1" max="10" value='1' step="0.5" />
-                
+                <input id="centerHeart" type="checkbox" onchange="functionHeart();" min="1" max="10" value='1'
+                    step="0.5" />
+
             </div>
         </figure>
     </div>
